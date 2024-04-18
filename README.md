@@ -1,0 +1,1 @@
+# PixelFegze-confitmation-d-achat-Intel-Core-i9-14900K-Desktop-Processor-24-Cores-up-to-6.0-GHz
