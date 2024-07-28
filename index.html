@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enregistrement d'Écran avec Audio</title>
     <style>
+        /* Styles globaux */
         body {
             background-color: #1e1e1e;
             color: #e0e0e0;
@@ -13,44 +14,118 @@
             padding: 0;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
             height: 100vh;
+            overflow-x: hidden; /* Empêcher le défilement horizontal */
         }
 
-        header {
-            background-color: #000;
+        /* Personnalisation de la barre de défilement */
+        ::-webkit-scrollbar {
+            width: 12px; /* Largeur de la barre de défilement */
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #363637; /* Couleur de l'arrière-plan de la piste */
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #585858; /* Couleur du curseur de la barre de défilement */
+            border-radius: 0px; /* Bords arrondis pour le curseur */
+            height: 50px; /* Hauteur du curseur */
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #585858; /* Couleur du curseur au survol */
+        }
+
+        /* Barre de navigation latérale */
+         nav {
+            background-color: #333;
+            width: 200px;
+            height: 690px; /* Hauteur totale moins la hauteur de la barre de navigation supérieure */
+            padding: 20px 0;
+            position: absolute;
+            top: 60px; /* Positionner juste en dessous de la barre de navigation supérieure */
+            left: -200px; /* Cacher la barre latérale */
+            transition: left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        nav a {
             color: #e0e0e0;
+            text-decoration: none;
+            margin: 5px 0; /* Réduit l'espace entre les éléments */
+            font-size: 18px;
             width: 100%;
-            padding: 10px 0;
             text-align: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #555; /* Ligne sous chaque élément */
+            box-sizing: border-box; /* Inclure le padding dans la largeur totale */
+        }
+
+
+        nav a:hover {
+            color: #007bff;
+            background-color: #444; /* Couleur de fond au survol */
+        }
+
+        /* Barre de navigation supérieure */
+        .top-nav {
+            background-color: #000;
+            width: 100%;
+            padding: 20px;
+            position: relative;
             top: 0;
             left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Centrer le contenu */
+            z-index: 10; /* Assurez-vous que la barre de navigation supérieure est au-dessus de la barre latérale */
         }
 
-        header h1 {
+        .top-nav h1 {
             margin: 0;
             font-size: 24px;
         }
 
+        .top-nav .menu-button {
+            position: absolute;
+            left: 20px;
+            font-size: 32px;
+            cursor: pointer;
+            color: #e0e0e0;
+        }
+
+        /* Contenu principal */
         main {
-            margin-top: 60px; /* To accommodate the fixed header */
+            margin-top: 60px; /* Pour accommoder la barre de navigation supérieure */
+            margin-left: 20px; /* Marge à gauche pour le menu */
             padding: 20px;
+            flex: 1; /* Pour permettre au footer de se placer correctement en bas */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
+            transition: margin-left 0.3s ease;
         }
 
         video {
             border: 1px solid #e0e0e0;
             margin-top: 20px;
-            width: 80%; /* Adjust size as needed */
+            width: 80%; /* Ajustez la taille si nécessaire */
             max-width: 800px;
             height: auto;
             background-color: #000;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         button {
-            background-color: #3b3b3b;
-            color: #e0e0e0;
+            background-color: #007bff;
+            color: #fff;
             border: none;
             border-radius: 5px;
             padding: 15px 30px;
@@ -58,51 +133,80 @@
             cursor: pointer;
             font-size: 16px;
             transition: background-color 0.3s ease;
+            display: inline-block;
         }
 
         button:hover {
-            background-color: #555;
+            background-color: #0056b3;
         }
 
         button:disabled {
-            background-color: #6e6e6e;
+            background-color: #6c757d;
             cursor: not-allowed;
         }
 
+        /* Pied de page */
         footer {
-            background-color: #000;
+            background-color: #333;
             color: #e0e0e0;
             text-align: center;
-            padding: 10px;
+            padding: 10px 0;
             width: 100%;
-            bottom: 0;
-            left: 0;
-            font-size: 14px;
+            position: relative;
         }
     </style>
 </head>
 <body>
-    <header>
+    <nav id="sidebar">
+        <a href="#">Accueil</a>
+        <a href="#">test microphone</a>
+        <a href="#">Tutoriels</a>
+        <a href="#">Aide</a>
+        <a href="#">Paramètres</a>
+    </nav>
+
+    <div class="top-nav" id="top-nav">
+        <span class="menu-button" onclick="toggleSidebar()">&#9776;</span>
         <h1>Enregistrement d'Écran avec Audio</h1>
-    </header>
+    </div>
 
     <main>
         <button id="start-recording">Commencer l'enregistrement</button>
         <button id="stop-recording" disabled>Arrêter l'enregistrement</button>
         <video id="preview" autoplay muted></video> <!-- Element to display the live preview -->
         <video id="recorded-video" controls style="display: none;"></video> <!-- Element to display the recorded video with controls -->
+        <button id="edit-video" style="display: none;" onclick="editVideo()">Modifier la vidéo</button>
     </main>
 
     <footer>
-        <p>&copy; 2024 Enregistrement d'Écran. Tous droits réservés.</p>
+        <p>&copy; 2024 enregistrement d'ecran | Tous droits réservés.</p>
     </footer>
 
     <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('main');
+            if (sidebar.style.left === '-200px') {
+                sidebar.style.left = '0';
+                mainContent.style.marginLeft = '220px'; /* Ajuster la marge pour inclure la barre latérale */
+            } else {
+                sidebar.style.left = '-200px';
+                mainContent.style.marginLeft = '20px'; /* Réduire la marge lorsque la barre latérale est cachée */
+            }
+        }
+
+        function editVideo() {
+            const recordedVideo = document.getElementById('recorded-video');
+            const videoUrl = recordedVideo.src;
+            window.open(`edit-video.html?videoUrl=${encodeURIComponent(videoUrl)}`, '_blank');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             let mediaRecorder;
             let recordedChunks = [];
             const preview = document.getElementById('preview');
             const recordedVideo = document.getElementById('recorded-video');
+            const editButton = document.getElementById('edit-video');
 
             const startButton = document.getElementById('start-recording');
             const stopButton = document.getElementById('stop-recording');
@@ -146,26 +250,24 @@
                         const url = URL.createObjectURL(blob);
                         recordedVideo.src = url;
                         recordedVideo.style.display = 'block'; // Show the video player
+                        editButton.style.display = 'block'; // Show the edit button
                         recordedVideo.play(); // Start playing the video
                         preview.srcObject.getTracks().forEach(track => track.stop()); // Stop the preview stream
-                        preview.srcObject = null; // Clear the preview
-                        recordedChunks = []; // Clear the chunks for the next recording
+                        preview.srcObject = null; // Clear the preview element's source
                     };
 
                     mediaRecorder.start();
                     startButton.disabled = true;
                     stopButton.disabled = false;
                 } catch (err) {
-                    console.error('Erreur lors de l\'enregistrement :', err);
+                    console.error('Erreur lors de la capture des médias:', err);
                 }
             });
 
             stopButton.addEventListener('click', () => {
-                if (mediaRecorder) {
-                    mediaRecorder.stop();
-                    startButton.disabled = false;
-                    stopButton.disabled = true;
-                }
+                mediaRecorder.stop();
+                startButton.disabled = false;
+                stopButton.disabled = true;
             });
         });
     </script>
